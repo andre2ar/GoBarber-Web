@@ -2,60 +2,32 @@ import React from "react";
 import {FiAlertCircle, FiXCircle} from "react-icons/fi";
 
 import { Container, Toast } from "./styles";
+import {ToastMessage} from "../../hooks/toast";
 
-const ToastContainer: React.FC = () => {
+interface ToastContainerProps {
+    messages: ToastMessage[];
+}
+
+const ToastContainer: React.FC<ToastContainerProps> = ({ messages }) => {
     return (
         <Container>
-            <Toast hasDescription>
-                <FiAlertCircle size={20}/>
+            {messages.map(message => (
+                <Toast key={message.id}
+                       hasDescription={!!message.description}
+                       type={message.type}
+                >
+                    <FiAlertCircle size={20}/>
 
-                <div>
-                    <strong>Error</strong>
-                    <p>You can not sign in</p>
-                </div>
+                    <div>
+                        <strong>{message.title}</strong>
+                        {message.description && <p>{message.description}</p>}
+                    </div>
 
-                <button>
-                    <FiXCircle size={18}/>
-                </button>
-            </Toast>
-
-            <Toast hasDescription type="success">
-                <FiAlertCircle size={20}/>
-
-                <div>
-                    <strong>Error</strong>
-                    <p>You can not sign in</p>
-                </div>
-
-                <button>
-                    <FiXCircle size={18}/>
-                </button>
-            </Toast>
-
-            <Toast hasDescription type="error">
-                <FiAlertCircle size={20}/>
-
-                <div>
-                    <strong>Error</strong>
-                    <p>You can not sign in</p>
-                </div>
-
-                <button>
-                    <FiXCircle size={18}/>
-                </button>
-            </Toast>
-
-            <Toast type="error" hasDescription={false}>
-                <FiAlertCircle size={20}/>
-
-                <div>
-                    <strong>Error</strong>
-                </div>
-
-                <button>
-                    <FiXCircle size={18}/>
-                </button>
-            </Toast>
+                    <button>
+                        <FiXCircle size={18}/>
+                    </button>
+                </Toast>
+            ))}
         </Container>
     );
 }

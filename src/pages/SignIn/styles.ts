@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, {keyframes} from "styled-components";
 import { shade } from "polished";
 
 import signInBackgroundImage from '../../assets/sign-in-background.png';
@@ -18,6 +18,26 @@ export const Content = styled.div`
   
   width: 100%;
   max-width: 70rem;
+`;
+
+const appearFromLeft = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-5rem);    
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);    
+  }
+`;
+
+export const AnimationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  animation: ${appearFromLeft} 1s;
   
   form {
     margin: 8rem 0;
@@ -56,7 +76,7 @@ export const Content = styled.div`
     
     &:hover {
       color: ${shade(0.2, '#ff9000')};
-    }  
+    }
   }
 `;
 

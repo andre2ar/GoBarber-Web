@@ -7,12 +7,13 @@ import getValidationError from "../../utils/getValidationError";
 
 import logoImg from '../../assets/logo.svg';
 
-import {Background, Container, Content} from "./styles";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import * as Yup from "yup";
 import {FormHandles} from "@unform/core";
 import {useToast} from "../../hooks/toast";
+import {Link} from "react-router-dom";
+import {Background, Container, AnimationContainer, Content} from "./styles";
 
 interface SignInFormData {
     email: string;
@@ -47,37 +48,34 @@ const SignIn: React.FC = () => {
             if(err instanceof Yup.ValidationError) {
                 const errors = getValidationError(err);
                 formRef.current?.setErrors(errors);
+                return;
             }
-
-            addToast({
-                type: 'error',
-                title: 'Authentication error',
-                description: 'Wrong e-mail or password, try again'
-            });
         }
     }, [signIn, addToast]);
 
     return (
         <Container>
             <Content>
-                <img src={logoImg} alt="Go Barber"/>
-                <Form ref={formRef} onSubmit={handleSubmit}>
-                    <h1>Sign In</h1>
+                <AnimationContainer>
+                    <img src={logoImg} alt="Go Barber"/>
+                    <Form ref={formRef} onSubmit={handleSubmit}>
+                        <h1>Sign In</h1>
 
-                    <Input name={"email"} icon={FiMail} type="email" placeholder="E-mail"/>
-                    <Input name={"password"} icon={FiLock} type="password" placeholder="Password"/>
+                        <Input name={"email"} icon={FiMail} type="email" placeholder="E-mail"/>
+                        <Input name={"password"} icon={FiLock} type="password" placeholder="Password"/>
 
-                    <Button type="submit">
-                        Sign In
-                    </Button>
+                        <Button type="submit">
+                            Sign In
+                        </Button>
 
-                    <a href="forgot">Forgot password?</a>
-                </Form>
+                        <a href="forgot">Forgot password?</a>
+                    </Form>
 
-                <a href="signup">
-                    <FiLogIn/>
-                    Sign-up
-                </a>
+                    <Link to="signup">
+                        <FiLogIn/>
+                        Sign-up
+                    </Link>
+                </AnimationContainer>
             </Content>
             <Background/>
         </Container>

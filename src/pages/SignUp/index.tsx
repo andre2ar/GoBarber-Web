@@ -43,6 +43,7 @@ const SignUp: React.FC = () => {
             });
 
             await api.post('/users', data);
+            history.push('/');
             addToast({
                 type: "success",
                 title: "Successfully signed-up",
@@ -61,7 +62,7 @@ const SignUp: React.FC = () => {
                 description: 'Try again in some minutes'
             });
         }
-    }, [addToast]);
+    }, [addToast, history]);
 
     return (
         <Container>

@@ -1,5 +1,6 @@
 import React, {useCallback, useRef} from "react";
 import {FiLock, FiLogIn, FiMail} from "react-icons/fi";
+import {useHistory} from 'react-router-dom';
 import {Form} from '@unform/web';
 
 import {useAuth} from "../../hooks/auth";
@@ -24,6 +25,7 @@ const SignIn: React.FC = () => {
     const formRef = useRef<FormHandles>(null);
     const { signIn } = useAuth();
     const { addToast } = useToast();
+    const history = useHistory();
 
     const handleSubmit = useCallback(async (data: SignInFormData) => {
         try {
@@ -44,14 +46,21 @@ const SignIn: React.FC = () => {
                 email: data.email,
                 password: data.password
             });
+            history.push('/dashboard');
         } catch (err) {
             if(err instanceof Yup.ValidationError) {
                 const errors = getValidationError(err);
                 formRef.current?.setErrors(errors);
                 return;
             }
+
+            addToast({
+                type: 'error',
+                title: 'Authentication error',
+                description: 'Wrong e-mail or password, try again'
+            });
         }
-    }, [signIn, addToast]);
+    }, [signIn, addToast, history]);
 
     return (
         <Container>

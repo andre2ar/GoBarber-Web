@@ -1,6 +1,6 @@
 import React, {useCallback, useRef} from "react";
 import {FiLock} from "react-icons/fi";
-import {useHistory} from 'react-router-dom';
+import {useHistory, useLocation} from 'react-router-dom';
 import {Form} from '@unform/web';
 
 import getValidationError from "../../utils/getValidationError";
@@ -13,6 +13,7 @@ import * as Yup from "yup";
 import {FormHandles} from "@unform/core";
 import {useToast} from "../../hooks/toast";
 import {Background, Container, AnimationContainer, Content} from "./styles";
+import api from "../../services/api";
 
 interface ResetPasswordFormData {
     password: string;
@@ -23,6 +24,7 @@ const ResetPassword: React.FC = () => {
     const formRef = useRef<FormHandles>(null);
     const { addToast } = useToast();
     const history = useHistory();
+    const location = useLocation();
 
     const handleSubmit = useCallback(async (data: ResetPasswordFormData) => {
         try {
@@ -35,6 +37,17 @@ const ResetPassword: React.FC = () => {
 
             await schema.validate(data, {
                 abortEarly: false
+            });
+
+            const token = location.search.replace('?token=', '');
+            if(!token) {
+                throw new Error();
+            }
+
+            await api.post('/password/reset', {
+                password: data.password,
+                password_confirmation: data.password_confirmation,
+                token
             });
 
             history.push('/signin');
@@ -51,7 +64,7 @@ const ResetPassword: React.FC = () => {
                 description: 'An error occurred, try again'
             });
         }
-    }, [addToast, history]);
+    }, [addToast, history, location.search]);
 
     return (
         <Container>

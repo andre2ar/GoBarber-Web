@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
+import { Link } from 'react-router-dom';
 import {isToday, format, parseISO, isAfter} from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import {useAuth} from "../../hooks/auth";
@@ -123,9 +124,11 @@ const Dashboard: React.FC = () => {
 
                         <div>
                             <span>Welcome,</span>
-                            <strong>
-                                {user.name}
-                            </strong>
+                            <Link to='/profile'>
+                                <strong>
+                                    {user.name}
+                                </strong>
+                            </Link>
                         </div>
                     </Profile>
 

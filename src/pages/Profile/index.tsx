@@ -17,7 +17,9 @@ import {useAuth} from "../../hooks/auth";
 interface ProfileFormData {
     name: string;
     email: string;
+    old_password: string;
     password: string;
+    password_confirmation: string;
 }
 
 const Profile: React.FC = () => {
@@ -36,20 +38,30 @@ const Profile: React.FC = () => {
                 email: Yup.string()
                     .required('E-mail is required')
                     .email('Type a valid e-mail'),
-                password: Yup.string()
-                    .min(6, 'Password must have at least 6 digits'),
+                old_password: Yup.string(),
+                password: Yup.string().when('old_password', {
+                    is: val => !!val.length,
+                    then: Yup.string().required('Mandatory field'),
+                    otherwise: Yup.string(),
+                }),
+                password_confirmation: Yup.string().when('old_password', {
+                    is: val => !!val.length,
+                    then: Yup.string().required('Mandatory field'),
+                    otherwise: Yup.string(),
+                }).oneOf([Yup.ref('password'), undefined], 'Password must match'),
             });
 
             await schema.validate(data, {
                 abortEarly: false
             });
 
-            await api.post('/users', data);
-            history.push('/');
+            const response = await api.put('/profile', data);
+            updateUser(response.data);
+
             addToast({
                 type: "success",
-                title: "Successfully signed-up",
-                description: "Now you can sign in",
+                title: "Successfully updated",
+                description: "Profile information were updated",
             });
         } catch (err) {
             if(err instanceof Yup.ValidationError){
@@ -60,8 +72,8 @@ const Profile: React.FC = () => {
 
             addToast({
                 type: 'error',
-                title: 'Sign-up error',
-                description: 'Try again in some minutes'
+                title: 'Could not save',
+                description: 'You profile could not be updated'
             });
         }
     }, [addToast, history]);

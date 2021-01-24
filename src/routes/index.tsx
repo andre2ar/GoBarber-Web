@@ -13,16 +13,16 @@ import {useAuth} from "../hooks/auth";
 const Routes: React.FC = () => {
     const { user } = useAuth();
     let routes = [
-        <Route path='/signup' component={SignUp}/>,
-        <Route path='/forgot-password' component={ForgotPassword}/>,
-        <Route path='/reset-password' component={ResetPassword}/>,
-        <Route path='/' component={SignIn}/>,
+        <Route key='/signup' path='/signup' component={SignUp}/>,
+        <Route key='/forgot-password' path='/forgot-password' component={ForgotPassword}/>,
+        <Route key='/forgot-password' path='//forgot-password' component={ResetPassword}/>,
+        <Route key='/' path='/' component={SignIn}/>,
     ];
 
     if(user) {
         routes = [
-            <Route path='/profile' component={Profile}/>,
-            <Route path='/' component={Dashboard}/>,
+            <Route key='/profile' path='/profile' component={Profile}/>,
+            <Route key='/' path='/' component={Dashboard}/>,
         ];
     }
 

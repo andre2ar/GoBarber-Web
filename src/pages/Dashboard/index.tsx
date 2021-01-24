@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {isToday, format, parseISO} from 'date-fns';
+import {isToday, format, parseISO, isAfter} from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import {useAuth} from "../../hooks/auth";
 import DayPicker, {DayModifiers} from "react-day-picker";
@@ -27,7 +27,7 @@ interface MonthAvailabilityItem {
     available: boolean;
 }
 
-interface Appointment {
+interface AppointmentData {
     id: string;
     date: string;
     formattedHour: string;
@@ -42,10 +42,10 @@ const Dashboard: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [monthAvailability, setMonthAvailability] = useState<MonthAvailabilityItem[]>([]);
-    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [appointments, setAppointments] = useState<AppointmentData[]>([]);
 
     const handleDateChange = useCallback((day: Date, modifiers: DayModifiers) => {
-        if (modifiers.available) {
+        if (modifiers.available && !modifiers.disabled) {
             setSelectedDate(day);
         }
     }, []);
@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
     }, [currentMonth, user.id]);
 
     useEffect(() => {
-        api.get<Appointment[]>('/appointments/me', {
+        api.get<AppointmentData[]>('/appointments/me', {
             params: {
                 year: currentMonth.getFullYear(),
                 month: currentMonth.getMonth() + 1,
@@ -80,7 +80,6 @@ const Dashboard: React.FC = () => {
                 }
             });
 
-            console.log(formattedAppointments);
             setAppointments(formattedAppointments);
         });
     }, [currentMonth, selectedDate]);
@@ -104,7 +103,11 @@ const Dashboard: React.FC = () => {
 
     const selectedWeekDayAsText = useMemo(() => format(selectedDate, "cccc", {
         locale: enUS
-    }), [selectedDate])
+    }), [selectedDate]);
+
+    const nextAppointment = useMemo(() => {
+        return appointments.find(appointment => isAfter(parseISO(appointment.date), new Date()));
+    }, [appointments]);
 
     return (
         <Container>
@@ -113,7 +116,10 @@ const Dashboard: React.FC = () => {
                     <img src={logoImg} alt={"Go Barber"} />
 
                     <Profile>
-                        { user.avatar_url && <img src={user.avatar_url} alt={user.name} />}
+                        { <img
+                            src={user?.avatar_url ?? `https://ui-avatars.com/api/?name=${user.name}`}
+                            alt={user.name}
+                        />}
 
                         <div>
                             <span>Welcome,</span>
@@ -138,20 +144,29 @@ const Dashboard: React.FC = () => {
                         <span>{selectedWeekDayAsText}</span>
                     </p>
 
-                    <NextAppointment>
-                        <strong>Next appointment</strong>
-                        <div>
-                            <img src={user.avatar_url} alt={user.name} />
-                            <strong>{user.name}</strong>
-                            <span>
-                                <FiClock />
-                                08:00
-                            </span>
-                        </div>
-                    </NextAppointment>
+                    {
+                        isToday(selectedDate) && nextAppointment &&
+                        <NextAppointment>
+                            <strong>Next appointment</strong>
+                            <div>
+                                <img
+                                    src={nextAppointment.user?.avatar_url ?? `https://ui-avatars.com/api/?name=${nextAppointment.user.name}`}
+                                    alt={nextAppointment.user.name}
+                                />
+                                <strong>{nextAppointment.user.name}</strong>
+                                <span>
+                                    <FiClock />
+                                    {nextAppointment.formattedHour}
+                                </span>
+                            </div>
+                        </NextAppointment>
+                    }
 
                     <Section>
                         <strong>Morning</strong>
+                        {morningAppointments.length === 0 && (
+                            <p>No appointments for this morning</p>
+                        )}
 
                         {morningAppointments.map(appointment => (
                             <Appointment key={appointment.id}>
@@ -161,8 +176,11 @@ const Dashboard: React.FC = () => {
                                 </span>
 
                                 <div>
-                                    <img src={appointment?.user?.avatar_url} alt={appointment?.user?.name} />
-                                    <strong>{appointment?.user?.name}</strong>
+                                    <img
+                                        src={appointment.user?.avatar_url ?? `https://ui-avatars.com/api/?name=${appointment.user.name}`}
+                                        alt={appointment.user.name}
+                                    />
+                                    <strong>{appointment.user.name}</strong>
                                 </div>
                             </Appointment>
                         ))}
@@ -170,6 +188,10 @@ const Dashboard: React.FC = () => {
 
                     <Section>
                         <strong>Afternoon</strong>
+
+                        {afterNoonAppointments.length === 0 && (
+                            <p>No appointments for this afternoon</p>
+                        )}
 
                         {afterNoonAppointments.map(appointment => (
                             <Appointment key={appointment.id}>
@@ -179,8 +201,12 @@ const Dashboard: React.FC = () => {
                                 </span>
 
                                 <div>
-                                    <img src={appointment?.user?.avatar_url} alt={appointment?.user?.name} />
-                                    <strong>{appointment?.user?.name}</strong>
+                                    <img
+                                        src={appointment.user?.avatar_url ?? `https://ui-avatars.com/api/?name=${appointment.user.name}`}
+                                        alt={appointment.user.name}
+                                    />
+
+                                    <strong>{appointment.user.name}</strong>
                                 </div>
                             </Appointment>
                         ))}

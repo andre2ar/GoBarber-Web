@@ -25,7 +25,6 @@ interface ProfileFormData {
 const Profile: React.FC = () => {
     const formRef = useRef<FormHandles>(null);
     const {addToast} = useToast();
-    const history = useHistory();
 
     const { user, updateUser } = useAuth();
 
@@ -76,7 +75,7 @@ const Profile: React.FC = () => {
                 description: 'You profile could not be updated'
             });
         }
-    }, [addToast, history]);
+    }, [addToast, updateUser]);
 
     const handleAvatarChange = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
         if(!e.target.files) {
